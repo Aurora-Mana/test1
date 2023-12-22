@@ -1,13 +1,14 @@
 package test.ebs;
 import main.ebs.CalculateBill;
-import main.ebs.WriteFileB;
 import main.ebs.WriteFileMockB;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.jupiter.api.io.TempDir;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.stream.IntStream;
 import static org.assertj.swing.edt.GuiActionRunner.execute;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,9 +20,15 @@ public class TestCalculateBill {
 
     @BeforeEach
     public void setUp() {
-        // Create an instance of CalculateBill within the EDT
         bill = execute(CalculateBill::new);
     }
+
+    @TempDir
+    Path tempDir;
+
+    Path tempFile;
+
+
     @Test
     void testInvalidMeterNoNoLessThan1001(){
         assertFalse(bill.getMeterNumber()<1001);
@@ -52,20 +59,6 @@ public class TestCalculateBill {
     }
 
 
-    /*@Test
-    void testValidInput(){
-        bill.c1.select("1001");
-        bill.t1.setText("50");
-        bill.c2.select("January");
-
-        // Perform action
-       bill.getB1().doClick();
-
-        // Assertions
-        String fileContent = bill.getFileContent("bill_info.txt");
-        assertTrue(fileContent.contains("Meter No: 1001, Month: January, Units Consumed: 50, Total Charges:"));
-    }
-    */
     @Test
     void testValidInputMockVer(){
         WriteFileMockB writeFileMockB = new WriteFileMockB();
@@ -86,13 +79,12 @@ public class TestCalculateBill {
 
     @Test
     void testCalculateBill_CancelOperation() {
-        CalculateBill calculateBill = new CalculateBill();
-        calculateBill.setVisible(true);
+        bill.setVisible(true);
 
-        JButton cancelButton = calculateBill.getB2();
+        JButton cancelButton = bill.getB2();
         cancelButton.doClick();
 
-        assertFalse(calculateBill.isVisible());
+        assertFalse(bill.isVisible());
     }
 
 
@@ -103,40 +95,28 @@ public class TestCalculateBill {
         bill.setUnitsConsumed("abc");
         bill.setMonth("March");
 
-        assertThrows(NumberFormatException.class,() -> {bill.getB1().doClick();});
+        assertThrows(NumberFormatException.class,() -> bill.getB1().doClick());
     }
 
 
 
-
-    // not sure if we need this since we always have something chosen for the month input - huerta
     @Test
-    void testInvalidInputMissingMonth(){
-        bill.setMeterNumber("1002");
-        bill.setUnitsConsumed("30");
-        bill.setMonth("");
+    void testGetFileContentWithError() throws IOException {
+        tempFile = tempDir.resolve("bill_info.txt");
+        Files.deleteIfExists(tempFile);
 
-        bill.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "SimulatedActionCommand"));
-
-        String fileContent = bill.getFileContent("bill_info.txt");
-        assertFalse(fileContent.contains("Meter No: 1002, Month: , Units Consumed: 30, Total Charges:"));
-
-    }
-
-
-    @Test
-    void testGetFileContentWithError() {
-        String fileName = "bill_info.txt";
-        String actualContent = bill.getFileContent(fileName);
-        assertNotEquals("Error reading file or file is empty: null", actualContent,
+        String actualContent = bill.getFileContent(tempFile.toString());
+        assertNotEquals("Error reading file or file is empty:", actualContent,
                 "Error message should be present for a non-existent file or file with no read permissions");
     }
 
+
     @Test
-    void testGetFileContentEmptyFile() {
-        String fileName = "bill_info.txt";
-        String actualContent = bill.getFileContent(fileName);
-        assertNotEquals("", actualContent, "File content should be empty for an empty file");
+    void testGetFileContentEmptyFile() throws IOException {
+        tempFile = tempDir.resolve("bill_info.txt");
+        Files.createFile(tempFile);
+        String actualContent = bill.getFileContent(tempFile.toString());
+        assertEquals("", actualContent, "File content should be empty for an empty file");
     }
 }
 

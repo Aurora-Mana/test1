@@ -14,6 +14,7 @@ public class TestCustomerDetails {
 
     @BeforeEach
     void Setup() {
+
         customerDetails = execute(CustomerDetails::new);
     }
 
@@ -97,43 +98,6 @@ public class TestCustomerDetails {
             }
 
     }
-    /* ndosha hyn me shume ne pune te newcustomer
-    @Test
-    public void testFileCorrectFormat(){
-        try {
-            customerDetails.readDataFromFile();
-        } catch (IOException e) {
-            // Handle or log the exception as needed
-            e.printStackTrace();
-        }
-
-        for (String[] row : customerDetails.getCustomerData()) {
-            //Assert first cell contains letter for name
-                assertTrue(row[0].matches("[a-zA-Z]+"), "Invalid format for the first cell");
-
-                // Assert that the second cell is a number
-                assertTrue(row[1].matches("\\d+"), "Invalid format for the second cell");
-
-                // Assert that the third cell is a number or letter for address
-                assertTrue(row[2].matches("[a-zA-Z\\d]+"), "Invalid format for the third cell");
-
-                // Assert that the fourth cell contains letter for state
-                assertTrue(row[3].matches("[a-zA-Z]+"), "Invalid format for the 4th cell");
-
-               // Assert that the fifth cell contains letter for city
-               assertTrue(row[4].matches("[a-zA-Z]+"), "Invalid format for the 5th cell");
-
-               // Assert that the sixth cell contain necessary parts for email
-               assertTrue(row[5].matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"), "Invalid format for the 6th cell");
-
-              // Assert that the seventh cell contains numbers for cellphone
-              assertTrue(row[4].matches("\\d+"), "Invalid format for the 7th cell");
-        }
-    }
-
-     */
-
-
 
 }
 
